@@ -1,0 +1,25 @@
+{
+  "name": "chronos-job-scheduler-system",
+  "version": "1.0.0",
+  "description": "Design and implement a scalable backend system for scheduling, managing, and monitoring jobs",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive 'test/**/*.js' --exit"
+  },
+  "author": "MD SHAKILUR RAHMAN ANSARI",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "chai-http": "^4.4.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.3.0",
+    "sinon": "^17.0.1"
+  }
+}
