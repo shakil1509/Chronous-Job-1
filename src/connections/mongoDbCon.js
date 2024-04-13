@@ -6,8 +6,8 @@ const MongoDB_URI=config.MongoDB_URI;
 if(process.env.NODE_ENV!='test'){
     try 
     {
-        //  mongoose.connect(MongoDB_URI, {
-        mongoose.connect('mongodb://localhost:27017/usersTestDB',{
+         mongoose.connect(MongoDB_URI, {
+        // mongoose.connect('mongodb://localhost:27017/chronosLocalDB',{
 
             useNewUrlParser: true,
             useUnifiedTopology: true,

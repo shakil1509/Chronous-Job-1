@@ -11,16 +11,21 @@ exports.verifyToken = (req, res, next) => {
             if(err) {
                 req.user = undefined;
                 req.message = "Header verification failed";
+                // res.send({err})
+
                 next();
             } else {
                 User.findOne({
                     _id: decode.id
-                }).then(user => {
+                }).select('-password').then(user => {
                     req.user = user;
+                    // res.send({user})
                     req.message = "Found the user successfully";
+                    console.log("Found the user successfully")
                     next();
                 }).catch(err => {
                     req.user = undefined;
+                    // res.send({err})
                     req.message = "Some error while finding the user";
                     next();
                 });
@@ -30,6 +35,40 @@ exports.verifyToken = (req, res, next) => {
         req.user = undefined;
         req.message = "Authorization header not found";
         next();
+        // res.send({err})
+    }
+};
+
+exports.extractUserDetails = (req, res, next) => {
+    if(req.headers && req.headers.authorization) {
+        jwt.verify(req.headers.authorization, JWT_SECRET_KEY, function(err, decode) {
+            if(err) {
+                req.user = undefined;
+                req.message = "Header verification failed";
+                res.send({err})
+
+                // next();
+            } else {
+                User.findOne({
+                    _id: decode.id
+                }).select('-password').then(user => {
+                    req.user = user;
+                    res.send({user})
+                    // req.message = "Found the user successfully";
+                    // next();
+                }).catch(err => {
+                    req.user = undefined;
+                    res.send({err})
+                    // req.message = "Some error while finding the user";
+                    // next();
+                });
+            }
+        });
+    } else {
+        req.user = undefined;
+        req.message = "Authorization header not found";
+        // next();
+        res.send({err})
     }
 };
 

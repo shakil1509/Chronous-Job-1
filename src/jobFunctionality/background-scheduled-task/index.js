@@ -4,6 +4,7 @@ const { fork } = require('child_process');
 const uuid = require('uuid');
 
 const daemonPath = `${__dirname}/daemon.js`;
+console.log("daemonPath---->", daemonPath)
 
 class BackgroundScheduledTask extends EventEmitter {
     constructor(cronExpression, taskPath, options){

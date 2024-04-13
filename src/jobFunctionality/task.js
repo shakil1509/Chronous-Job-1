@@ -6,6 +6,7 @@ class Task extends EventEmitter{
     constructor(execution){
         super();
         if(typeof execution !== 'function') {
+            console.log("execution inside task.js--->",execution);
             throw 'execution must be a function';
         }
         this._execution = execution;

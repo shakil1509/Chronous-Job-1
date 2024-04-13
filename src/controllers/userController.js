@@ -66,3 +66,70 @@ exports.login=async (req, res) => {
     });
 
 }
+
+exports.extractUserDetails = async (req, res) => {
+    try {
+        const userId = req.userDetails.userId;
+        const user = await User.findOne({ _id: userId }).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ status: false, message: 'User not found' });
+        }
+
+        return res.status(200).json({ status: true, data: user });
+    } catch (error) {
+        console.error('Database Error:', error);
+        return res.status(500).json({ status: false, message: `Database Error: ${error.message}` });
+    }
+};
+
+exports.updateUserDetails = async (req, res) => {
+    const userId = req.user._id; // Use the ID from the verified user
+    let updates = req.body;
+
+    // Fields allowed to be updated
+    const allowedUpdates = ['fullName', 'email', 'phone', 'role', 'date_of_birth'];
+    const updateFields = Object.keys(updates);
+
+    // Ensure only allowed fields are updated and exclude the password
+    delete updates.password;
+
+    // Check for allowed update fields
+    const isValidOperation = updateFields.every(field => allowedUpdates.includes(field));
+    if (!isValidOperation) {
+        return res.status(400).send({ message: "Invalid updates!" });
+    }
+
+    try {
+        // Uniqueness check for email and phone
+        if (updates.email || updates.phone) {
+            const existingUser = await User.findOne({
+                $or: [
+                    { email: updates.email },
+                    { phone: updates.phone }
+                ],
+                _id: { $ne: userId } // Exclude the current user from the search
+            });
+
+            if (existingUser) {
+                return res.status(400).send({ message: "Email or phone number already in use." });
+            }
+        }
+
+        // Find the user by ID and update
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send({ message: "User not found." });
+        }
+
+        // Apply the updates
+        updateFields.forEach(field => user[field] = updates[field]);
+        await user.save();
+
+        const updatedUser = await User.findById(user._id).select('-password');
+        // Return the updated user details (excluding password)
+        res.status(200).json({ message: "User updated successfully.", updatedUser });
+    } catch (error) {
+        res.status(500).send({ message: "Error updating user details.", error: error.message });
+    }
+};
