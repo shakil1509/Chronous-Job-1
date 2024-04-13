@@ -23,7 +23,7 @@ const JobModel = require('../../models/jobmodel'); // Import your Mongoose Job m
 const path=require('path');
 const { exec } = require('child_process');
     // Assuming the taskPath is static and known
-    let taskPath = path.join(__dirname, '..', 'taskFile.js'); // Ensure this is the correct relative path from where the process is started
+    let taskPath = path.join(__dirname, '../../', 'taskFile.js'); // Ensure this is the correct relative path from where the process is started
 
 function executeTaskFile() {
     exec(`node ${taskPath}`, (error, stdout, stderr) => {

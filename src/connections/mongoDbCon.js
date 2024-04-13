@@ -9,8 +9,8 @@ if(process.env.NODE_ENV!='test'){
          mongoose.connect(MongoDB_URI, {
         // mongoose.connect('mongodb://localhost:27017/chronosLocalDB',{
 
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            // useNewUrlParser: true,
+            // useUnifiedTopology: true,
         });
         console.log("Connected to the db");
     } catch (err) {

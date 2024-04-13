@@ -26,6 +26,7 @@ class ScheduledTask extends EventEmitter {
         this._scheduler = new Scheduler(cronExpression, options.timezone, options.recoverMissedExecutions);
 
         this._scheduler.on('scheduled-time-matched', (now) => {
+            console.log("Scheduled time matched:---->",now)
             this.now(now);
         });
 
@@ -39,7 +40,9 @@ class ScheduledTask extends EventEmitter {
     }
     
     now(now = 'manual') {
+        console.log("now---->",now)
         let result = this._task.execute(now);
+        console.log("result---->",result);
         this.emit('task-done', result);
     }
     
