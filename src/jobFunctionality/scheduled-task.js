@@ -19,6 +19,10 @@ class ScheduledTask extends EventEmitter {
         this.options.name = this.options.name || uuid.v4();
 
         this._task = new Task(func);
+    console.log("inside scheduled-task type of pattern--->",typeof(cronExpression))
+    console.log("inside scheduled-task type of pattern--->",cronExpression)
+
+
         this._scheduler = new Scheduler(cronExpression, options.timezone, options.recoverMissedExecutions);
 
         this._scheduler.on('scheduled-time-matched', (now) => {

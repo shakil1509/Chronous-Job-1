@@ -5,6 +5,8 @@ const TimeMatcher = require('./time-matcher');
 
 class Scheduler extends EventEmitter{
     constructor(pattern, timezone, autorecover){
+    console.log("inside scheduler type of pattern--->",typeof(pattern))
+
         super();
         this.timeMatcher = new TimeMatcher(pattern, timezone);
         this.autorecover = autorecover;

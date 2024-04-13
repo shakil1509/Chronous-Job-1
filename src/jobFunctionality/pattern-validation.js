@@ -110,6 +110,7 @@ function validateFields(patterns, executablePatterns) {
  * @returns {void}
  */
 function validate(pattern) {
+    console.log("inside patten-validator type of pattern--->",typeof(pattern))
     if (typeof pattern !== 'string')
         throw new TypeError('pattern must be a string!');
 
