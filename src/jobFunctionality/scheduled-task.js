@@ -19,14 +19,14 @@ class ScheduledTask extends EventEmitter {
         this.options.name = this.options.name || uuid.v4();
 
         this._task = new Task(func);
-    console.log("inside scheduled-task type of pattern--->",typeof(cronExpression))
-    console.log("inside scheduled-task type of pattern--->",cronExpression)
+    // console.log("inside scheduled-task type of pattern--->",typeof(cronExpression))
+    // console.log("inside scheduled-task type of pattern--->",cronExpression)
 
 
         this._scheduler = new Scheduler(cronExpression, options.timezone, options.recoverMissedExecutions);
 
         this._scheduler.on('scheduled-time-matched', (now) => {
-            console.log("Scheduled time matched:---->",now)
+            // console.log("Scheduled time matched:---->",now)
             this.now(now);
         });
 
@@ -40,9 +40,9 @@ class ScheduledTask extends EventEmitter {
     }
     
     now(now = 'manual') {
-        console.log("now---->",now)
+        // console.log("now---->",now)
         let result = this._task.execute(now);
-        console.log("result---->",result);
+        // console.log("result---->",result);
         this.emit('task-done', result);
     }
     

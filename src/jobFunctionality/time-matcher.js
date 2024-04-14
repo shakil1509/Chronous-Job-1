@@ -11,7 +11,7 @@ function matchPattern(pattern, value){
 
 class TimeMatcher{
     constructor(pattern, timezone){
-        console.log("inside time-matcher type of pattern--->",typeof(pattern))
+        // console.log("inside time-matcher type of pattern--->",typeof(pattern))
 
         validatePattern(pattern);
         this.pattern = convertExpression(pattern);
