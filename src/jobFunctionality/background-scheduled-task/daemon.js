@@ -47,20 +47,12 @@ function executeTaskFile(jobId) {
                 console.error(`exec error: ${error}`);
                 return;
             }
-            console.log(`stdout: ${stdout}`);
+            console.log(`stdout: ${jobId + ' =============== ' +stdout}`);
+
             if(stderr){
                 console.error(`stderr: ${stderr}`);
             }
-            // Handle task completion by updating attempts and checking for max_attempts
-            // JobModel.findById(jobId).then(job => {
-            //     if (job.attempts + 1 >= job.max_attempts) {
-            //         // Stop the task if max attempts reached
-            //         job.status = 'successful'; // Stop scheduling further
-            //     }
-            //     job.attempts += 1; // Increment attempt count
-            //     job.save(); // Save changes
-            }).catch(err => {
-                console.error('Error executing jobs', err);
+
             });
     }
 }
@@ -68,30 +60,37 @@ function executeTaskFile(jobId) {
 
 function scheduleJobsFromDatabase() {
     // Retrieve unscheduled jobs from the database
-    JobModel.find({ status :'running' }).then(jobs => {
+    JobModel.find({ status :'running' }).maxTimeMS(30000).then(jobs => {
         if (jobs.length === 0) {
             console.log('No eligible jobs to schedule.');
             return;
         }
-        console.log("jobs", jobs);
+        console.log("jobs =============> ", jobs);
         jobs.forEach(job => {
-            const scheduledTask = new ScheduledTask(job.cron_expression, executeTaskFile(job._id), job.options);
-            job.attempts += 1;
-            job.scheduled = true; // Mark as scheduled
-            if (job.attempts>= job.max_attempts) {
-                // Stop the task if max attempts reached
-                job.scheduled = false; // Stop scheduling further
-                job.status='successful'
-            }
-            job.save().then(() => {
-                console.log(`Job ${job._id} scheduled and marked as such in the database.`);
-            }).catch(err => {
-                console.error(`Failed to update job ${job._id} as scheduled in the database:`, err);
-            });
+            console.log('single job ======================> ', job);
+            try {
+                const scheduledTask = new ScheduledTask(job.cron_expression, executeTaskFile(job._id), {scheduled:job.scheduled});
+                job.attempts += 1;
+                job.scheduled = true; // Mark as scheduled
+                if (job.attempts >= job.max_attempts) {
+                    // Stop the task if max attempts reached
+                    job.scheduled = false; // Stop scheduling further
+                    job.status='successful';
+                    //job.attempts = 0;
+                }
+                job.save().then(() => {
+                    console.log(`Job ${job._id} scheduled and marked as such in the database.`);
+                    scheduledTask.stop();
+                }).catch(err => {
+                    console.error(`Failed to update job ${job._id} as scheduled in the database:`, err);
+                });
 
-            scheduledTask.on('task-done', (result) => {
-                // console.log('Job execution result:', result);
-            });
+                scheduledTask.on('task-done', (result) => {
+                    // console.log('Job execution result:', result);
+                });
+            } catch (err) {
+                console.error('Error creating scheduled task or executing task file:', err);
+            }
         });
     }).catch(err => {
         console.error('Error retrieving unscheduled jobs from the database:', err);

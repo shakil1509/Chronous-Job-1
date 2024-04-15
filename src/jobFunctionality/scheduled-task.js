@@ -30,7 +30,7 @@ class ScheduledTask extends EventEmitter {
             this.now(now);
         });
 
-        if(options.scheduled !== false){
+        if(options.scheduled){
             this._scheduler.start();
         }
         
