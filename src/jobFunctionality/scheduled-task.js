@@ -1,58 +1,68 @@
+// scheduled-task-manager.js
 'use strict';
 
 const EventEmitter = require('events');
 const Task = require('./task');
 const Scheduler = require('./scheduler');
-const uuid = require('uuid');
 
-class ScheduledTask extends EventEmitter {
-    constructor(cronExpression, func, options) {
-        super();
-        if(!options){
-            options = {
-                scheduled: true,
-                recoverMissedExecutions: false
-            };
-        }
-      
-        this.options = options;
-        this.options.name = this.options.name || uuid.v4();
+class ScheduledTaskManager {
+    constructor() {
+        this.tasks = {};
+    }
 
-        this._task = new Task(func);
-    // console.log("inside scheduled-task type of pattern--->",typeof(cronExpression))
-    // console.log("inside scheduled-task type of pattern--->",cronExpression)
+    scheduleTask(taskId, cronExpression, taskFunction, options) {
+        const task = new Task(taskId, taskFunction);
+        const scheduler = new Scheduler(cronExpression, options.timezone, options.recoverMissedExecutions,taskId);
 
-
-        this._scheduler = new Scheduler(cronExpression, options.timezone, options.recoverMissedExecutions);
-
-        this._scheduler.on('scheduled-time-matched', (now) => {
-            // console.log("Scheduled time matched:---->",now)
-            this.now(now);
+        scheduler.on(taskId+'schedule', () => {
+            task.execute('scheduled')
         });
 
-        if(options.scheduled){
-            this._scheduler.start();
+        task.on(taskId+'taskFinished', () => {
+            task.stop();
+        });
+
+        if (options.scheduled) {
+            scheduler.start();
         }
-        
-        if(options.runOnInit === true){
-            this.now('init');
+
+        if (options.runOnInit === true) {
+            task.execute('init');
+        }
+
+        this.tasks[taskId] = { task, scheduler };
+        return taskId;
+    }
+
+    getAllTasks() {
+        return this.tasks;
+    }
+
+    getTaskById(taskId) {
+        if (this.tasks.length && this.tasks[taskId].hasOwnProperty('task')) {
+            return this.tasks[taskId].task;
+        } else {
+            return {};
         }
     }
-    
-    now(now = 'manual') {
-        // console.log("now---->",now)
-        let result = this._task.execute(now);
-        // console.log("result---->",result);
-        this.emit('task-done', result);
+
+    stopTask(taskId) {
+        const taskObj = this.tasks[taskId];
+        if (taskObj) {
+            taskObj.task.stop(); // Call stop method of the task
+            taskObj.scheduler.stop();
+            delete this.tasks[taskId];
+            return true;
+        }
+        return false;
     }
-    
-    start() {
-        this._scheduler.start();  
-    }
-    
-    stop() {
-        this._scheduler.stop();
+
+    stopAllTasks() {
+        Object.values(this.tasks).forEach(({ task,scheduler }) => {
+            task.stop();
+            scheduler.stop();
+        });
     }
 }
 
-module.exports = ScheduledTask;
+module.exports = ScheduledTaskManager;

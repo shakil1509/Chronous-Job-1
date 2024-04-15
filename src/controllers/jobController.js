@@ -1,7 +1,8 @@
 const Job=require('../models/jobmodel');
 const chronos=require('../jobFunctionality/node-cron');
 const startBackgroundTask=require('../jobFunctionality/startBackgroundTask')
-
+const ScheduledTaskManager = require('../jobFunctionality/scheduled-task');
+const taskManager = new ScheduledTaskManager();
 
 exports.submitJob = async (req, res) => {
   try {
@@ -112,16 +113,21 @@ exports.deleteJob=async (req, res) => {
 
 exports.stopJob=async (req, res) => {
   const jobId = req.params.id;
-  const userId = req.user._id; // Assuming the user ID is extracted from the token
+  //const userId = req.user._id; // Assuming the user ID is extracted from the token
 
   // Validate input parameter and user permissions
   // ...
 
   try {
-      // Logic to stop the ongoing task
-      // ...
+        const task = taskManager.getTaskById(jobId);
+      if ((Object.keys(task)).length){
+          task.stop()
+          return res.status(200).json({ message: 'Task stopped successfully' });
+      } else {
+          return res.status(400).json({ message: 'No task found' });
+      }
 
-      return res.status(200).json({ message: 'Task stopped successfully' });
+      //return res.status(200).json({ message: 'Task stopped successfully' });
   } catch (error) {
       return res.status(500).json({ message: 'Internal server error', error: error.message });
   }

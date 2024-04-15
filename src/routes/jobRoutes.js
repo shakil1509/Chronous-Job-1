@@ -10,7 +10,7 @@ router.get('/fetchJob/:id',authValidator.verifyToken,jobController.getJobById);
 router.get('/fetchJobs',authValidator.verifyToken,jobController.getAllJobs);
 router.put('/update/:id',authValidator.verifyToken,jobController.updateJob);
 router.delete('/delete/:id',authValidator.verifyToken,jobController.deleteJob);
-router.post('/stop/:id',authValidator.verifyToken,jobController.stopJob);
+router.get('/stop/:id',jobController.stopJob);
 router.get('/test',jobController.test);
 
 
